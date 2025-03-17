@@ -17,4 +17,5 @@ export interface Food {
     RecipeServings: number
     RecipeYield: string
     RecipeInstructions: string
+    image_link: string
 }
