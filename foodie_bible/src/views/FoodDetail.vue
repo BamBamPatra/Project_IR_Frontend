@@ -33,52 +33,16 @@ const closePopup = () => {
     showPopup.value = false;
 };
 
-// Bookmark
-const bookmarkRecipe = () => {
-    if (!selectedFolderId.value) {
-        alert("Please select a folder to save the bookmark.");
-        return;
-    }
+const rating = ref<number>(0);  // Store the user's rating
 
-    const recipeId = route.params.id;
-    console.log("Sending RecipeId:", recipeId); 
-
-    if (!recipeId) {
-    console.error("RecipeId is missing!");
-    return;
-    }
-
-    console.log("Sending RecipeId:", recipeId);  
-
-    if (isBookmarked.value) {
-        // Removing the recipe from folder
-        authService.removeRecipeFromFolder(selectedFolderId.value, recipeId)
-            .then(() => {
-                isBookmarked.value = false;
-            })
-            .catch((error) => {
-                console.error("Error removing bookmark:", error);
-            });
-    } else {
-        // Adding recipe to folder
-        authService.addRecipeToFolder(selectedFolderId.value, recipeId)
-            .then(() => {
-                isBookmarked.value = true;
-            })
-            .catch((error) => {
-                console.error("Error adding bookmark:", error);
-            });
-    }
-
-    closePopup();
+// Set rating when a star is clicked
+const setRating = (star: number) => {
+    rating.value = star;
 };
-
 
 const onImageError = () => {
     console.error("❌ Failed to load image:", food.value?.Images);
 };
-
-
 
 onMounted(() => {
     if (!RecipeId) {
@@ -108,12 +72,42 @@ onMounted(() => {
     // ดึงข้อมูล Folder ของ User
     authService.getUserFolders()
         .then((response) => {
-            userFolders.value = response.data;  // เก็บข้อมูล Folder ที่ผู้ใช้มี
+            userFolders.value = response.data;  
         })
         .catch((error) => {
             console.error('Error fetching folders:', error);
         });
 });
+
+const addOrRemoveBookmarkAndSubmitRating = async () => {
+    if (!selectedFolderId.value) {
+        alert("Please select a folder to save the bookmark.");
+        return;
+    }
+
+    const recipeId = route.params.id;
+    if (!recipeId) {
+        console.error("RecipeId is missing!");
+        return;
+    }
+
+    try {
+        console.log("⭐ Submitting rating:", rating.value); 
+
+        const response = await authService.addRecipeToFolder(
+            selectedFolderId.value,
+            recipeId,
+            rating.value  
+        );
+        isBookmarked.value = true;
+    } catch (error) {
+        console.error("❌ Error adding bookmark or submitting rating:", error);
+    }
+    closePopup();
+};
+
+
+
 </script>
 
 
@@ -182,21 +176,39 @@ onMounted(() => {
         </div>
     </div>
 
-    <!-- Popup สำหรับเลือก Folder -->
-    <div v-if="showPopup" class="popup">
-        <div class="popup-content">
-            <h3>Select a Folder</h3>
-            <select v-model="selectedFolderId">
-                <option v-for="folder in userFolders" :key="folder.id" :value="folder.id">
-                    {{ folder.name }}
-                </option>
-            </select>
-            <button @click="bookmarkRecipe" class="popup-button">
-                {{ isBookmarked ? "Remove Bookmark" : "Add Bookmark" }}
-            </button>
-            <button @click="closePopup" class="cancel-button">Cancel</button>
+  <!-- Add Rating and Bookmark Section Inside the Popup -->
+<div v-if="showPopup" class="popup">
+    <div class="popup-content">
+        <h3>Select a Folder</h3>
+        <select v-model="selectedFolderId">
+            <option v-for="folder in userFolders" :key="folder.id" :value="folder.id">
+                {{ folder.name }}
+            </option>
+        </select>
+        
+        <!-- Rating Section -->
+        <div class="rating-section">
+            <h4>Rate this Recipe</h4>
+            <div class="stars">
+                <span v-for="star in 5" :key="star" 
+                    class="star"
+                    :class="{ 'active': rating >= star }"
+                    @click="setRating(star)">
+                    ★
+                </span>
+            </div>
         </div>
+        
+        <button @click="addOrRemoveBookmarkAndSubmitRating" class="popup-button">
+            {{ isBookmarked ? "Remove Bookmark and Rating" : "Add Bookmark and Rating" }}
+        </button>
+
+
+        <button @click="closePopup" class="cancel-button">Cancel</button>
     </div>
+</div>
+
+
 
 </template>
 
@@ -354,4 +366,22 @@ h1, h3 {
 .cancel-button:hover {
     background-color: #e53935;
 }
+.stars {
+    display: inline-block;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.star {
+    color: #ccc;
+}
+
+.star.active {
+    color: #f39c12;
+}
+
+.popup-content h4 {
+    margin-bottom: 10px;
+}
+
 </style>
