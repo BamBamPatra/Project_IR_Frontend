@@ -7,13 +7,25 @@ const apiClient = axios.create({
         Accept: 'application/json',
         'Content-Type': 'application/json'
     }
-})
+});
 
 export default {
+    // Fetch all foods, or perform search if query is provided
     getFoods(query: string = '') {
-        return apiClient.get(`/search${query ? `?query=${query}` : ''}`);
+        return apiClient.get(`/search`, {
+            params: { query }  
+        });
     },
-    getFood(id: number){
-        return apiClient.get('/search/' + id)
+
+    // Get food by specific ID
+    getFood(id: number) {
+        return apiClient.get(`/search/${id}`); 
+    },
+
+    // Fetch suggestions (if needed)
+    getSuggestions(query: string) {
+        return apiClient.get(`/suggest`, {
+            params: { query }
+        });
     }
-}
+};

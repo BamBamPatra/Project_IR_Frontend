@@ -50,7 +50,6 @@ export const authService = {
             throw new Error(error.response?.data.message || 'Login failed');
         }
     },
-    
 
     logout: () => {
         localStorage.removeItem('access_token');
@@ -93,9 +92,10 @@ export const authService = {
 
     getUserFolders: async () => {
         try {
+            const token = localStorage.getItem('access_token');  
             const response = await authApiClient.get('/folders', {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('access_token')}`
+                    Authorization: `Bearer ${token}`  
                 }
             });
             return response;
@@ -105,10 +105,8 @@ export const authService = {
         }
     },
 
-    // Add recipe to folder
-    addRecipeToFolder: async (folderId, recipeId) => {
+    addRecipeToFolder: async (folderId, recipeId, rating) => {
         try {
-            // ตรวจสอบว่า recipeId และ folderId มีค่าหรือไม่
             if (!recipeId) {
                 throw new Error("Recipe ID is required");
             }
@@ -116,34 +114,24 @@ export const authService = {
                 throw new Error("Folder ID is required");
             }
     
-            // Get the access token
             const token = getAccessToken();
     
-            // สร้าง Payload สำหรับคำขอ
-            const payload = { RecipeId: recipeId };
+            const payload = { RecipeId: recipeId, rating: rating }; // ✅ ส่ง Rating ไปด้วย
+            console.log("📤 Sending payload:", payload);  // Debug ตรวจสอบ Payload
     
-            // ทำการส่ง POST request
-            const response = await authApiClient.post(`/folder/${folderId}/add_recipe`, 
-                { RecipeId: recipeId },  // ตรวจสอบว่าค่าของ recipeId ถูกส่งไปถูกต้อง
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-            
+            const response = await authApiClient.post(`/folder/${folderId}/add_recipe`, payload, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
     
-            // แสดงข้อมูลที่ส่งไปเพื่อให้แน่ใจว่า RecipeId ถูกส่งไปถูกต้อง
-            console.log("Sending payload:", payload);
-    
-            // ตรวจสอบคำตอบจาก API และส่งคืนข้อมูลที่ได้
             if (response.status === 200) {
-                console.log("Recipe added to folder successfully!");
+                console.log("✅ Recipe added to folder successfully with rating!");
             }
     
-            return response; // ส่งค่าผลลัพธ์จาก API กลับไป
+            return response;
         } catch (error) {
-            // จัดการข้อผิดพลาดที่เกิดขึ้นจาก API หรือการรับค่าผิดพลาด
-            console.error("Error adding recipe to folder:", error.response?.data || error.message);
+            console.error("❌ Error adding recipe to folder:", error.response?.data || error.message);
             throw new Error("Error adding recipe to folder.");
         }
     },
@@ -188,6 +176,27 @@ export const authService = {
         } catch (error) {
             console.error("Error fetching folder details:", error);
             throw new Error("Error fetching folder details.");
+        }
+    },
+    // Add this method in the authService file
+
+    updateFolderName: async (folderId, newFolderName) => {
+        try {
+            const token = localStorage.getItem('access_token'); 
+            if (!token) throw new Error("No access token found");
+
+            // Send a request to update the folder name
+            const response = await authApiClient.put(`/folder/${folderId}`, 
+                { name: newFolderName }, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+            return response; 
+        } catch (error) {
+            console.error("Error updating folder name:", error.response?.data || error.message);
+            throw new Error("Error updating folder name.");
         }
     }
 };
