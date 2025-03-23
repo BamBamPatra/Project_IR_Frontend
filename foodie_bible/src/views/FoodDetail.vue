@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 import FoodService from '@/service/FoodService';
 import { authService } from '@/service/authenService';
 import Food from '@/type/Food';
+import router from '@/router';
 
 const route = useRoute();
 const RecipeId = Number(route.params.id);  
@@ -25,8 +26,10 @@ const ingredientList = computed(() => {
 
 // Open Popup
 const openBookmarkPopup = () => {
-    showPopup.value = true;  // แสดง popup เมื่อคลิกปุ่ม Bookmark
+  checkLoginStatus();  
+  showPopup.value = true;  
 };
+
 
 // Close Popup
 const closePopup = () => {
@@ -68,8 +71,6 @@ onMounted(() => {
         console.error('Error fetching food details:', error);
     });
 
-
-    // ดึงข้อมูล Folder ของ User
     authService.getUserFolders()
         .then((response) => {
             userFolders.value = response.data;  
@@ -106,10 +107,15 @@ const addOrRemoveBookmarkAndSubmitRating = async () => {
     closePopup();
 };
 
-
+// Function to check if the user is logged in
+const checkLoginStatus = () => {
+  const isLoggedIn = !!localStorage.getItem('access_token');  
+  if (!isLoggedIn) {
+    router.push('/login');  
+  }
+};
 
 </script>
-
 
 <template>
        <div class="recipe-card" v-if="food">
@@ -123,7 +129,7 @@ const addOrRemoveBookmarkAndSubmitRating = async () => {
                 <h1>{{ food.Name }}</h1>  
                 <h3>By: {{ food.AuthorName }}</h3> 
 
-                <!-- เพิ่มปุ่ม Bookmark -->
+                <!-- Bookmark button -->
                 <button @click="openBookmarkPopup" class="bookmark-button">
                     {{ isBookmarked ? "Remove Bookmark" : "Add Bookmark" }}
                 </button>
@@ -161,8 +167,6 @@ const addOrRemoveBookmarkAndSubmitRating = async () => {
                     </ul>
                 </div>
                 
-                
-
                 <div class="instructions">
                     <h3>Instructions</h3>
                     <ol>
@@ -177,38 +181,36 @@ const addOrRemoveBookmarkAndSubmitRating = async () => {
     </div>
 
   <!-- Add Rating and Bookmark Section Inside the Popup -->
-<div v-if="showPopup" class="popup">
-    <div class="popup-content">
-        <h3>Select a Folder</h3>
-        <select v-model="selectedFolderId">
-            <option v-for="folder in userFolders" :key="folder.id" :value="folder.id">
-                {{ folder.name }}
-            </option>
-        </select>
-        
-        <!-- Rating Section -->
-        <div class="rating-section">
-            <h4>Rate this Recipe</h4>
-            <div class="stars">
-                <span v-for="star in 5" :key="star" 
-                    class="star"
-                    :class="{ 'active': rating >= star }"
-                    @click="setRating(star)">
-                    ★
-                </span>
+    <div v-if="showPopup" class="popup">
+        <div class="popup-content">
+            <h3>Select a Folder</h3>
+            <select v-model="selectedFolderId">
+                <option v-for="folder in userFolders" :key="folder.id" :value="folder.id">
+                    {{ folder.name }}
+                </option>
+            </select>
+            
+            <!-- Rating Section -->
+            <div class="rating-section">
+                <h4>Rate this Recipe</h4>
+                <div class="stars">
+                    <span v-for="star in 5" :key="star" 
+                        class="star"
+                        :class="{ 'active': rating >= star }"
+                        @click="setRating(star)">
+                        ★
+                    </span>
+                </div>
             </div>
+            
+            <button @click="addOrRemoveBookmarkAndSubmitRating" class="popup-button">
+                {{ isBookmarked ? "Remove Bookmark and Rating" : "Add Bookmark and Rating" }}
+            </button>
+
+
+            <button @click="closePopup" class="cancel-button">Cancel</button>
         </div>
-        
-        <button @click="addOrRemoveBookmarkAndSubmitRating" class="popup-button">
-            {{ isBookmarked ? "Remove Bookmark and Rating" : "Add Bookmark and Rating" }}
-        </button>
-
-
-        <button @click="closePopup" class="cancel-button">Cancel</button>
     </div>
-</div>
-
-
 
 </template>
 
