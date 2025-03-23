@@ -9,16 +9,16 @@ defineProps<{
 
 <template>
     <RouterLink 
-        class="food-link" 
-        :to="{ name: 'food-detail-view', params: { id: food.RecipeId } }">
-      <div class="food-card">
-        <img :src="food.image_link" alt="Food Image" class="food-image" />
-        <h1>{{ food.Name }}</h1>
-        <div class="category" v-if="food.RecipeCategory && food.RecipeCategory !== 'No Category'">
-          <p>{{ food.RecipeCategory }}</p>
-        </div>
+    class="food-card" 
+    :to="{ name: 'food-detail-view', params: { id: food.RecipeId } }">
+    <div class="card">
+      <img :src="food.image_link" alt="Food Image" class="card-img" />
+      <div class="card-content">
+        <h2 class="title">{{ food.Name }}</h2>
+        <span v-if="food.RecipeCategory" class="tag">{{ food.RecipeCategory }}</span>
       </div>
-    </RouterLink>
+    </div>
+  </RouterLink>
 </template>
 
 <style scoped>
@@ -29,13 +29,45 @@ h1 {
 }
 
 .food-card {
-    border: solid 5px rgb(187, 4, 4);
-    margin: 10px;
-    padding: 10px;
-    width: 100%; 
-    max-width: 300px; 
-    border-radius: 8px; 
-    background-color: white;
+  text-decoration: none;
+  color: inherit;
+  width: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 16px;
+  text-align: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #603F26;
+  margin-bottom: 10px;
+}
+
+.tag {
+  font-size: 14px;
+  color: #d67e00;
+  background-color: #fff4d3;
+  border: 1px solid #f3ca52;
+  padding: 5px 10px;
+  border-radius: 20px;
 }
 
 .food-image {
