@@ -1,26 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import Food from '@/type/Food'
+import { ref } from 'vue';
+import Food from '@/type/Food';
 
 defineProps<{
     food: Food
-}>()
-
-
+}>();
 </script>
 
 <template>
-    <RouterLink class="food-link" :to="{ name: 'food-detail-view', params: { id: food.RecipeId }}">
-        <div class="food-card">
-            <img :src="food.image_link" alt="Food Image" class="food-image" />
-            <h1>{{ food.Name }}</h1>
-            <div class="category">
-                <p>{{ food.RecipeCategory }}</p>
-            </div>
+    <RouterLink 
+        class="food-link" 
+        :to="{ name: 'food-detail-view', params: { id: food.RecipeId } }">
+      <div class="food-card">
+        <img :src="food.image_link" alt="Food Image" class="food-image" />
+        <h1>{{ food.Name }}</h1>
+        <div class="category" v-if="food.RecipeCategory && food.RecipeCategory !== 'No Category'">
+          <p>{{ food.RecipeCategory }}</p>
         </div>
+      </div>
     </RouterLink>
 </template>
-
 
 <style scoped>
 h1 {
@@ -45,6 +44,7 @@ h1 {
     border-radius: 8px;
     margin-bottom: 10px;
 }
+
 .food-link {
     text-decoration: none;
     color: inherit;
@@ -63,5 +63,4 @@ h1 {
     margin: 10px auto; 
     width: fit-content;
 }
-
 </style>
