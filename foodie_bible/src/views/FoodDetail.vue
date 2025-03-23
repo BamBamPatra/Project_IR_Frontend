@@ -217,173 +217,186 @@ const checkLoginStatus = () => {
 
 <style scoped>
 .recipe-card {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-    max-width: 900px;
-    margin: auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  max-width: 900px;
+  margin: 40px auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .image-container img {
-    width: 100%;
-    border-radius: 10px;
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  max-height: 400px;
 }
 
 .content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.info {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.context {
-    padding-top: 20px;
-}
-
-.meta {
-    display: flex;
-    align-items: flex-start;
-}
-
-.time-info p, .extra-info p {
-    margin: 5px 0;
-}
-.space-between-box {
-    width: 350px;
+  margin-top: 24px;
 }
 
 .category {
-    background-color: #F3CA52;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    display: block;
-    text-align: center;
-    color: rgb(53, 37, 37);
+  background-color: #f3ca52;
+  color: #4d3600;
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-weight: 600;
+  margin: 10px 0;
 }
 
-.extra-info {
-    text-align: left;
+h1 {
+  font-size: 28px;
+  color: #2c1b10;
+  margin: 8px 0;
 }
 
-.calories {
-    display: flex;
-    align-items: center;
-    gap: 5px; 
-}
-.calories p {
-    padding-top: 2px;
-}
-
-.recipe-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.ingredients, .instructions {
-    width: 100%;
-}
-.ingredients ul, .instructions ol {
-    padding-left: 20px;
-}
-h1, h3 {
-    margin: 0;
+h3 {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 10px;
 }
 
 .line {
-    border-top: solid 2px black;
+  border-top: 1.5px solid #ddd;
+  margin: 20px 0;
 }
 
 .bookmark-button {
-    padding: 10px 20px;
-    background-color: #F3CA52;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+  background-color: #f3ca52;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: fit-content;
 }
 
 .bookmark-button:hover {
-    background-color: #e0b342;
+  background-color: #e0a700;
 }
 
-.bookmark-button:focus {
-    outline: none;
+.context {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  font-size: 15px;
 }
 
-/* Styles for the popup */
+.meta {
+  display: flex;
+  gap: 60px;
+}
+
+.calories {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #555;
+}
+
+.recipe-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-top: 30px;
+}
+
+.ingredients, .instructions {
+  flex: 1;
+}
+
+.ingredients ul,
+.instructions ol {
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.ingredients li::marker,
+.instructions li::marker {
+  color: #f3ca52;
+}
+
 .popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .popup-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    max-width: 400px;
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.popup-content h3,
+.popup-content h4 {
+  margin: 0;
+  font-weight: 600;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.popup-button,
+.cancel-button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.3s;
 }
 
 .popup-button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
 }
 
 .popup-button:hover {
-    background-color: #45a049;
+  background-color: #3f9c42;
 }
 
 .cancel-button {
-    padding: 10px 20px;
-    background-color: #f44336;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  background-color: #e74c3c;
+  color: white;
 }
 
 .cancel-button:hover {
-    background-color: #e53935;
+  background-color: #c0392b;
 }
+
 .stars {
-    display: inline-block;
-    font-size: 24px;
-    cursor: pointer;
+  display: flex;
+  gap: 6px;
+  font-size: 24px;
 }
 
 .star {
-    color: #ccc;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.2s;
 }
 
 .star.active {
-    color: #f39c12;
-}
-
-.popup-content h4 {
-    margin-bottom: 10px;
+  color: #f39c12;
 }
 
 </style>

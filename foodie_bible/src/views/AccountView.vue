@@ -74,7 +74,7 @@ const createFolder = async () => {
     newFolderName.value = ''; 
   } catch (error) {
     console.error("Error creating folder:", error);
-    alert("Error creating folder. Please try again.");
+    // alert("Error creating folder. Please try again.");
   }
 };
 
@@ -95,7 +95,7 @@ const fetchFolders = async () => {
         folders.value = folderData;  
     } catch (error) {
         console.error("Error fetching folders:", error);
-        alert("Error fetching folders.");
+        // alert("Error fetching folders.");
     }
 };
 
@@ -226,37 +226,49 @@ const startRename = (folder) => {
 
 const updateFolderName = async () => {
   if (!newFolderName.value.trim()) {
-    alert("Folder name cannot be empty.");
+    triggerToast("Folder name cannot be empty.");
     return;
   }
 
   try {
-    const response = await authService.updateFolderName(selectedFolder.value.FolderId, newFolderName.value);
-    selectedFolder.value.FolderName = newFolderName.value;  
-    showRenameInput.value = false; 
-    alert("Folder name updated successfully!");
+    await authService.updateFolderName(selectedFolder.value.FolderId, newFolderName.value);
+    selectedFolder.value.FolderName = newFolderName.value;
+    showRenameInput.value = false;
 
-    router.push({ name: router.currentRoute.name, params: router.currentRoute.params, query: router.currentRoute.query });
-    window.location.reload();
+    triggerToast("✅ Folder name updated successfully!");
+
+    fetchFolders(); 
   } catch (error) {
     console.error("Error updating folder name:", error);
-    alert("Failed to update folder name. Please try again.");
+    triggerToast("❌ Failed to update folder name.");
   }
 };
+
+
+const showToast = ref(false);
+
+const toastMessage = ref(''); 
+const triggerToast = (message) => {  
+  toastMessage.value = message;
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+  }, 3000);
+};
+
+
 </script>
 
 <template>
   <div class="logout-section">
-    <button @click="logout" class="logout-button">Logout</button>
+  <button @click="logout" class="logout-button">Logout</button>
   </div>
+
 
   <div class="account-container">
     <div class="header">
       <div class="username-section">
         <h1 class="name">Welcome, {{ username }}</h1>
-      </div>
-      <div class="profile-section">
-        <div class="profile-circle"></div>
       </div>
     </div>
     
@@ -385,383 +397,311 @@ const updateFolderName = async () => {
     </div>
   </div>
 
+  <!-- ✅ Toast Notification -->
+  <div v-if="showToast" class="toast-popup">
+    {{ toastMessage }}
+  </div>
+
+
 </template>
 
 <style scoped>
-/* Container for account section */
+/* 🎨 Layout */
 .account-container {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  padding: 20px;
-  position: relative;
-  padding-right: 50px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+  background: #fffbe7;
 }
 
-/* Header */
 .header {
   display: flex;
   align-items: center;
-  width: 100%;
-  justify-content: flex-end;
+  gap: 16px;
 }
 
-/* Username section */
-.username-section {
-  display: flex;
-  align-items: center;
-  margin-right: 10px;
-}
-
-/* User name style */
 .name {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+  font-size: 26px;
+  font-weight: 600;
+  color: #2c1b10;
   margin: 0;
 }
 
-/* Profile section */
-.profile-section {
-  display: flex;
-  align-items: center;
-}
-
-/* Profile image circle */
 .profile-circle {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
+  background-color: #f3ca52;
   border-radius: 50%;
-  background-color: #F3CA52;
-  margin-left: 10px;
 }
 
-/* Logout button */
+/* 🚪 Logout Button */
 .logout-button {
-  height: 30px;
-  font-size: 10px;
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  margin-right: 20px;
-}
-
-/* Logout section margin */
-.logout-section {
-  margin-bottom: 20px;
-}
-
-/* Generic button style */
-button {
-  padding: 10px 20px;
+  padding: 8px 14px;
+  font-size: 12px;
   background-color: #333;
   color: white;
-  border: none;
-  border-radius: 5px;
+  border-radius: 6px;
+  transition: 0.3s;
   cursor: pointer;
 }
 
-button:hover {
+.logout-button:hover {
   background-color: #555;
 }
 
-/* Line separator */
-.line {
-  border-top: solid 2px black;
-  width: 90%;
-  margin: 0 auto;
-  margin-top: 10px;
-}
 
-/* Folder section */
-.folder-section {
+.logout-section {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
   margin-top: 20px;
 }
 
-/* Create folder button */
-.create-folder-button {
+
+/* ✨ Buttons */
+button {
   padding: 10px 20px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.create-folder-button,
+.delete-button,
+.remove-button {
+  padding: 10px 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+}
+
+.create-folder-button {
   background-color: #4CAF50;
   color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
 .create-folder-button:hover {
   background-color: #45a049;
 }
 
-/* Recipe section */
-.recipe-section {
-  margin-top: 20px;
-}
-
-.recipe-section ul {
-  list-style-type: none;
-}
-
-.recipe-section p {
-  font-size: 16px;
-  color: #555;
-}
-
-/* Folder container */
-.folder-container {
-  margin-top: 20px;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 10px;
-}
-
-/* Grid for folders */
-.folder-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  margin-top: 10px;
-}
-
-/* Folder card */
-.folder-card {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.folder-card:hover {
-  background: #f3ca52;
-  transform: scale(1.05);
-}
-
-/* Folder detail */
-.folder-detail {
-  margin-top: 20px;
-  padding: 15px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Recipe card */
-.recipe-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
-  width: 100%;
-  cursor: pointer;
-}
-
-.recipe-card:hover {
-  background: #f3ca52;
-  transform: scale(1.00);
-}
-
-/* Recipe content */
-.recipe-content {
-  display: flex;
-  width: 100%;
-  justify-content: flex-start;
-}
-
-/* Recipe name */
-.recipe-name {
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  text-align: left;
-  margin-right: auto;
-  padding-left: 30px;
-}
-
-.recipe-name:hover {
-  color: #f39c12;
-}
-
-/* Recipe image */
-.recipe-img img {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.recipe-img {
-  margin-left: 15px;
-}
-
-/* No image placeholder */
-.no-img {
-  font-size: 12px;
-  color: gray;
-  text-align: center;
-}
-
-/* Delete and remove buttons */
 .delete-button,
 .remove-button {
   background-color: #e74c3c;
   color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
 }
 
-.remove-button {
-  margin-right: 15px;
-}
-
-.remove-button:hover,
-.delete-button:hover {
+.delete-button:hover,
+.remove-button:hover {
   background-color: #c0392b;
 }
 
-/* Popup overlay */
+/* 📂 Folder */
+.folder-container {
+  padding: 32px;
+}
+
+.folder-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.folder-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  min-width: 200px;
+  cursor: pointer;
+  transition: transform 0.25s, background 0.3s;
+}
+
+.folder-card:hover {
+  background-color: #fff1be;
+  transform: scale(1.03);
+}
+
+.folder-name-text {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+/* 📑 Folder Detail */
+.folder-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  margin: 30px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+}
+
+.edit-icon {
+  width: 22px;
+  cursor: pointer;
+}
+
+/* ✍️ Rename */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.input-wrapper input {
+  padding: 6px 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.input-wrapper button {
+  padding: 8px 14px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 6px;
+}
+
+.input-wrapper .cancel {
+  background: #e74c3c;
+}
+
+/* 🍲 Recipe List */
+.recipe-section ul {
+  padding: 0 30px;
+  list-style: none;
+}
+
+.recipe-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transition: 0.25s ease;
+}
+
+.recipe-card:hover {
+  background: #fff6d8;
+  transform: scale(1.01);
+}
+
+.recipe-content {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex: 1;
+}
+
+.recipe-img img {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.recipe-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.recipe-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.recipe-rating {
+  color: #f39c12;
+  font-weight: 500;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* 🧩 Popup */
 .popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0,0,0,0.4);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Popup content */
 .popup {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
+  background: white;
+  padding: 24px;
+  border-radius: 14px;
   width: 300px;
   text-align: center;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.2);
 }
 
-/* Popup actions */
 .popup-actions {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
-}
-
-.popup-confirm,
-.popup-cancel {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 45%;
+  gap: 10px;
 }
 
 .popup-confirm {
-  background-color: #4CAF50;
+  background: #2ecc71;
   color: white;
 }
 
 .popup-cancel {
-  background-color: #e74c3c;
+  background: #e74c3c;
   color: white;
 }
 
 .popup-confirm:hover {
-  background-color: #45a049;
+  background: #27ae60;
 }
 
 .popup-cancel:hover {
-  background-color: #c0392b;
+  background: #c0392b;
 }
 
-/* Input wrapper for forms */
-.input-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.input-wrapper input {
-  margin-right: 10px;
-  padding: 5px 10px;
-  font-size: 16px;
-  border-radius: 5px;
-}
-
-.input-wrapper button {
-  margin-left: 5px;
-  padding: 8px 15px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.input-wrapper button.cancel {
-  background-color: #e74c3c;
-}
-
-.input-wrapper button.cancel:hover,
-.input-wrapper button.save:hover {
-  background-color: #45a049;
-}
-
-/* Edit icon */
-.edit-icon {
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  margin-left: 10px;
-}
-
-/* Folder name text */
-.folder-name-text {
-  color: rgb(156, 7, 7);
-}
-
-/* Recipe info section */
-.recipe-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-left: 20px;
-}
-
-/* Recipe rating */
-.recipe-rating {
-  font-size: 14px;
-  color: #f39c12;
-  font-weight: bold;
-  margin-top: 5px;
-}
-
-/* Recommendation section */
+/* 💡 Recommendation */
 .recommendation-section {
-  margin-top: 30px;
-  background: #f0f9ff;
-  padding: 20px;
-  border-radius: 10px;
+  background: #f0faff;
+  padding: 24px;
+  margin: 40px;
+  border-radius: 14px;
 }
 
 .recommendation-section h2 {
-  margin-bottom: 15px;
-  color: #2c3e50;
+  margin-bottom: 20px;
+  color: #2980b9;
+  font-weight: 600;
 }
+.toast-popup {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 1000;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%   { opacity: 0; transform: translateY(-10px); }
+  10%  { opacity: 1; transform: translateY(0); }
+  90%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
 </style>
