@@ -92,7 +92,8 @@ export const authService = {
 
     getUserFolders: async () => {
         try {
-            const token = localStorage.getItem('access_token');  
+            // Ensure the token is being correctly passed in the headers
+            const token = getAccessToken();  
             const response = await authApiClient.get('/folders', {
                 headers: {
                     Authorization: `Bearer ${token}`  
@@ -179,7 +180,6 @@ export const authService = {
         }
     },
     // Add this method in the authService file
-
     updateFolderName: async (folderId, newFolderName) => {
         try {
             const token = localStorage.getItem('access_token'); 
@@ -198,6 +198,33 @@ export const authService = {
             console.error("Error updating folder name:", error.response?.data || error.message);
             throw new Error("Error updating folder name.");
         }
+    },
+    getRecommendationsForFolder: async (folderId) => {
+        try {
+            const response = await authApiClient.get(`/recommend/folder/${folderId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("❌ Error fetching recommendations:", error);
+            throw error;
+        }
+    },
+    getAllFolderRecommendations: async (userId) => {
+        const folders = await authService.getUserFolders();
+        const allRecs = [];
+    
+        for (const folder of folders.data) {
+        try {
+            const res = await authApiClient.get(`/recommend/folder/${folder.id}`);
+            allRecs.push(...res.data.recommendations);
+        } catch (e) {
+            console.warn(`No recs for folder ${folder.id}`);
+        }
+        }
+        return allRecs.sort(() => 0.5 - Math.random()).slice(0, 30); 
     }
 };
 
